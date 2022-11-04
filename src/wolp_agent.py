@@ -9,16 +9,21 @@ import torch
 criterion = nn.MSELoss()
 class WolpertingerAgent(DDPG):
 
-    def __init__(self, continuous, max_actions, action_low, action_high, nb_states, nb_actions, args, k_ratio=0.1):
+    def __init__(self, continuous, multi_discrete, max_actions, action_low, action_high, nb_states, nb_actions, args, k_ratio=0.1):
         super().__init__(args, nb_states, nb_actions)
         self.experiment = args.id
         # according to the papers, it can be scaled to hundreds of millions
         if continuous:
             self.action_space = action_space.Space(action_low, action_high, args.max_actions)
             self.k_nearest_neighbors = max(1, int(args.max_actions * k_ratio))
-        else:
-            self.action_space = action_space.Discrete_space(max_actions)
-            self.k_nearest_neighbors = max(1, int(max_actions * k_ratio))
+        else: #FIXME: add action_space - Multi_Discrete_Space
+            if not multi_discrete: #1 dimensional discrete
+                self.action_space = action_space.Discrete_space(max_actions)
+                self.k_nearest_neighbors = max(1, int(max_actions * k_ratio))
+            else: #multi discrete action space
+                self.action_space = action_space.Multi_discrete_space(action_low, action_high, max_actions)
+                self.k_nearest_neighbors = max(1, int(max_actions * k_ratio))
+
 
 
     def get_name(self):
@@ -34,14 +39,20 @@ class WolpertingerAgent(DDPG):
 
         if not isinstance(s_t, np.ndarray):
            s_t = to_numpy(s_t, gpu_used=self.gpu_used)
+
+        print("s_t 1:", s_t.shape)
         # make all the state, action pairs for the critic
         s_t = np.tile(s_t, [raw_actions.shape[1], 1])
 
+        print("s_t bef reshape", s_t.shape)
         s_t = s_t.reshape(len(raw_actions), raw_actions.shape[1], s_t.shape[1]) if self.k_nearest_neighbors > 1 \
             else s_t.reshape(raw_actions.shape[0], s_t.shape[1])
+        print("s_t aft reshape", s_t.shape)
+
         raw_actions = to_tensor(raw_actions, gpu_used=self.gpu_used, gpu_0=self.gpu_ids[0])
         s_t = to_tensor(s_t, gpu_used=self.gpu_used, gpu_0=self.gpu_ids[0])
 
+        print("s_t 2:", s_t.shape)
         # evaluate each pair through the critic
         actions_evaluation = self.critic([s_t, raw_actions])
 
@@ -58,6 +69,7 @@ class WolpertingerAgent(DDPG):
             return raw_actions[max_index], actions[max_index]
 
     def select_action(self, s_t, decay_epsilon=True):
+        print("##################################################################s_t 0:", s_t.shape)
         # taking a continuous action from the actor
         proto_action = super().select_action(s_t, decay_epsilon)
 

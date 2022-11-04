@@ -35,6 +35,7 @@ class Space:
         self._index = self._flann.build_index(self.__space, algorithm='kdtree')
 
     def search_point(self, point, k):
+        # print("proto point", point.shape, point)
         p_in = point
         if not isinstance(point, np.ndarray):
             p_in = np.array([p_in]).astype(np.float64)
@@ -53,6 +54,9 @@ class Space:
         return self._space_low + self._k * (point - self._low)
 
     def export_point(self, point):
+        # print("point_cont", point)
+        # print("point shape", point.shape)
+        # print(self._low + (point - self._space_low) / self._k)
         return self._low + (point - self._space_low) / self._k
 
     def get_space(self):
@@ -65,7 +69,7 @@ class Space:
         return self.shape()[0]
 
 
-class Discrete_space(Space):
+class Discrete_space(Space): #FIXME
     """
         Discrete action space with n actions (the integers in the range [0, n))
         1, 2, ..., n-1, n
@@ -77,10 +81,30 @@ class Discrete_space(Space):
         super().__init__([0], [n-1], n)
 
     def export_point(self, point):
-        return np.round(super().export_point(point)).astype(int)
+        # print("point", point)
+        ex_p = np.round(super().export_point(point)).astype(int)
+        # return np.round(super().export_point(point)).astype(int)
+        # print("round_point", ex_p)
+        return ex_p
+
+class Multi_discrete_space(Space): #FIXME
+    """
+        Multi discrete action space 
+
+    """
+
+    def __init__(self, action_low, action_high, n):  # n: the number of the discrete actions
+        super().__init__(action_low, action_high, n)
+
+    def export_point(self, point):
+        print("point", point)
+        ex_p = np.round(super().export_point(point)).astype(int)
+        # return np.round(super().export_point(point)).astype(int)
+        print("round_point_multi", ex_p)
+        return ex_p
 
 
-def init_uniform_space(low, high, points):
+def init_uniform_space(low, high, points): #FIXME
     dims = len(low)
     # In Discrete situation, the action space is an one dimensional space, i.e., one row
     points_in_each_axis = round(points**(1 / dims))
