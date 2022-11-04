@@ -4,3 +4,4 @@ __pycache_
 .DS_Store
 /.idea/
 src/auxiliary_self_test.py
+output
