@@ -6,8 +6,9 @@ import action_space
 from util import *
 import torch.nn as nn
 import torch
+from ddpg_sb3 import DDPGSB3
 criterion = nn.MSELoss()
-class WolpertingerAgent(DDPG):
+class WolpertingerAgentSB3(DDPGSB3):
 
     def __init__(self, continuous, multi_discrete, max_actions, action_low, action_high, nb_states, nb_actions, args, k_ratio=0.1):
         super().__init__(args, nb_states, nb_actions)

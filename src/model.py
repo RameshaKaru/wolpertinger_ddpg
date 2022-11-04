@@ -16,6 +16,7 @@ def fanin_init(size, fanin=None):
 class Actor(nn.Module):
     def __init__(self, nb_states, nb_actions, hidden1=256, hidden2=128, init_w=3e-3):
         super(Actor, self).__init__()
+        # self.fc1 = nn.Linear(nb_states, hidden1)
         self.fc1 = nn.Linear(nb_states, hidden1)
         self.fc2 = nn.Linear(hidden1, hidden2)
         self.fc3 = nn.Linear(hidden2, nb_actions)
@@ -30,6 +31,9 @@ class Actor(nn.Module):
         self.fc3.weight.data.uniform_(-init_w, init_w)
     
     def forward(self, x):
+        print("x shape:", x.shape)
+        # x = np.swapaxes(x, 1, 2)
+        # print(x.shape)
         out = self.fc1(x)
         out = self.relu(out)
         out = self.fc2(out)
@@ -55,6 +59,9 @@ class Critic(nn.Module):
     
     def forward(self, xs):
         x, a = xs
+        print("x shape critic:", x.shape)
+        # x = np.swapaxes(x, 0, 1)
+        # print(x.shape)
         out = self.fc1(x)
         out = self.relu(out)
         # concatenate along columns

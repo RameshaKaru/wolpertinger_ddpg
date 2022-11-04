@@ -111,6 +111,9 @@ class DDPG(object):
         return action
 
     def select_action(self, s_t, decay_epsilon=True):
+        tem1 = to_tensor(np.array([s_t]))
+        tem2 = np.array(s_t)
+        print("ddpg#############################", tem2.shape)
         # proto action
         action = to_numpy(
             self.actor(to_tensor(np.array([s_t]), gpu_used=self.gpu_used, gpu_0=self.gpu_ids[0])),

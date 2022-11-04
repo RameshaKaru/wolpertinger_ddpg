@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#Modify training and testing functions of wolp_ddpg for SB3 DDPG [TODO]
+#The below seems to be a modified version of https://github.com/ghliu/pytorch-ddpg/blob/master/main.py
+# can we use DDPG.learn directly? how to use it with wolp?
+
 def train(continuous, multi_discrete, env, agent, max_episode, warmup, save_model_dir, max_episode_length, logger, save_per_epochs):
     agent.is_training = True
     step = episode = episode_steps = 0
